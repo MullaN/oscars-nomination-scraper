@@ -15,7 +15,10 @@ const getData = async () => {
 const parseData = async () => {
     let pageBody
     await getData().then(body => pageBody = body)
-    console.log(pageBody)
+    const dom = new JSDOM(pageBody)
+    const {document} = dom.window
+    const awards = document.querySelectorAll('div.view-grouping-header > h2')
+    console.log(Array.from(awards).map(award => award.innerHTML))
 }
 
 parseData()
