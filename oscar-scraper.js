@@ -1,5 +1,6 @@
 const { JSDOM } = require("jsdom")
 const axios = require('axios')
+const fs = require('fs')
 
 const getData = async () => {
     try {
@@ -21,7 +22,8 @@ const parseData = async () => {
 
     // narrow view-grouping divs to ones matching awards
     awardDivs = Array.from(awardDivs).filter(div => awards.some(award => div.querySelector('h2') && div.querySelector('h2').innerHTML === award))
-    let movies = {}
+    let movies = []
+    let id = 0
     let movie = ""
     let people = ""
     let nominees
@@ -54,28 +56,19 @@ const parseData = async () => {
             }
             movie = movie.replace('\n', '')
             people = people.replace('\n', '')
-            if (movie in movies){
-                movies[movie].push({category, people})
+            
+            if (movies.filter(mov => mov.title === movie).length){
+                movies[movies.filter(mov => mov.title === movie)[0].id]['nominations'].push({category, people})
             } else {
-                movies[movie] = [{category, people}]
+                movies.push({id, title: movie, nominations: [{category, people}]})
+                id++
             }
         }
     })
-    return movies
+    fs.writeFile('oscar-data.js', 'const oscarData = ' + JSON.stringify(movies) +'\nmodule.exports = oscarData', function (err) {
+        if (err) return console.log(err);
+        console.log('Wrote movies to oscar-data.js');
+      })
 }
 
-parseData().then(movies => {
-    const http = require('http');
-    const PORT = 3000;
-    
-    const server = http.createServer((req, res) => {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/plain');
-      res.end(JSON.stringify(movies));
-    });
-    
-    server.listen(PORT, () => {
-      console.log(`Server running at PORT:${PORT}/`);
-    });
-})
-
+parseData()
