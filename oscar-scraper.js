@@ -42,13 +42,18 @@ const parseData = async () => {
         nominees = contents.map(nominee => nominee.textContent)
 
         for(let i = 0; i < nominees.length; i += 2){
-            if (i % 2 === order){
+            if (category.includes('(Original Song)')){
+                movie = nominees[i+1].substring(5,nominees[i+1].indexOf(";"))
+                people = nominees[i] + nominees[i+1].substring(nominees[i+1].indexOf(";"))
+            } else if (i % 2 === order){
                 movie = nominees[i]
                 people = nominees[i+1]
             } else {
                 people = nominees[i]
                 movie = nominees[i+1]
             }
+            movie = movie.replace('\n', '')
+            people = people.replace('\n', '')
             if (movie in movies){
                 movies[movie].push({category, people})
             } else {
@@ -62,14 +67,15 @@ const parseData = async () => {
 parseData().then(movies => {
     const http = require('http');
     const PORT = 3000;
-
+    
     const server = http.createServer((req, res) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end(JSON.stringify(movies));
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end(JSON.stringify(movies));
     });
-
+    
     server.listen(PORT, () => {
-    console.log(`Server running at PORT:${PORT}/`);
+      console.log(`Server running at PORT:${PORT}/`);
     });
 })
+
