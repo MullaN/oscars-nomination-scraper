@@ -23,7 +23,9 @@ const parseData = async () => {
     // narrow view-grouping divs to ones matching awards
     awardDivs = Array.from(awardDivs).filter(div => awards.some(award => div.querySelector('h2') && div.querySelector('h2').innerHTML === award))
     let movies = []
-    let id = 0
+    let shorts = []
+    let movieId = 0
+    let shortsId = 0
     let movie = ""
     let people = ""
     let nominees
@@ -56,16 +58,21 @@ const parseData = async () => {
             }
             movie = movie.replace('\n', '')
             people = people.replace('\n', '')
-            
-            if (movies.filter(mov => mov.title === movie).length){
-                movies[movies.filter(mov => mov.title === movie)[0].id]['nominations'].push({category, people})
+
+            if (category.includes('Short')) {
+                shorts.push({id: shortsId, title: movie, nominations: [{category, people}]})
+                shortsId++
             } else {
-                movies.push({id, title: movie, nominations: [{category, people}]})
-                id++
+                if (movies.filter(mov => mov.title === movie).length){
+                    movies[movies.filter(mov => mov.title === movie)[0].id]['nominations'].push({category, people})
+                } else {
+                    movies.push({id: movieId, title: movie, nominations: [{category, people}]})
+                    movieId++
+                }
             }
         }
     })
-    fs.writeFile('oscar-data.js', 'const oscarData = ' + JSON.stringify(movies) +'\nmodule.exports = oscarData', function (err) {
+    fs.writeFile('oscar-data.js', 'const movieData = ' + JSON.stringify(movies) +'\n' + 'const shortsData = ' + JSON.stringify(shorts) + '\nmodule.exports = {movieData, shortsData}', function (err) {
         if (err) return console.log(err);
         console.log('Wrote movies to oscar-data.js');
       })

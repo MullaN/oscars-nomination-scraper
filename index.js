@@ -1,23 +1,13 @@
 const express = require('express')
 const path = require('path')
-const oscarData = require('./oscar-data')
 
 const app = express()
 
-// Get all movies
-app.get('/api/movies', (req, res) => {
-    res.json(oscarData)
-})
+app.use(express.json())
+app.use(express.urlencoded({extended: false}))
 
-// Get single movie
-app.get('/api/movies/:id', (req, res) => {
-    const found = oscarData.some(movie => movie.id === parseInt(req.params.id))
-    if (found){
-        res.json(oscarData.filter(movie => movie.id === parseInt(req.params.id)))
-    } else {
-        res.status(400).json({msg: `No movie with the id of ${req.params.id}`})
-    }
-})
+app.use('/api/movies', require('./routes/api/movies'))
+app.use('/api/shorts', require('./routes/api/shorts'))
 
 const PORT = process.env.PORT || 5000
 
