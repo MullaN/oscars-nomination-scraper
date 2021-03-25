@@ -15,7 +15,7 @@ db.once('open', () => console.log('Connected to Database'))
 
 app.use(
     cors({
-      origin: ["http://localhost:3000", "http://192.168.50.119:3000", "https://oscars-checklist.web.app/"]
+      origin: ["http://localhost:3000", "http://192.168.50.119:3000", "https://oscars-checklist.web.app"]
     })
 )
 
