@@ -7,7 +7,7 @@ const mongoose = require('mongoose')
 
 const app = express()
 
-mongoose.connect(process.env.DATABASE_URL, {useNewUrlParser: true, useUnifiedTopology: true})
+mongoose.connect(process.env.DATABASE_URL, {useUnifiedTopology: true})
 const db = mongoose.connection
 
 db.on('error', (error) => console.error(error))
